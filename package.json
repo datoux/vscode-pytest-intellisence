@@ -10,14 +10,15 @@
 		"type": "git",
 		"url": "https://github.com/reverbc/vscode-pytest.git"
 	},
-		"bugs": {
-		"url": "https://github.com/reverbc/vscode-pytest/issues"
+	"bugs": {
+		"url": "https://github.com/reverbc/vscode-pytest/issues",
+		"email": "vscode-pytest@reverbc.tw"
 	},
 	"engines": {
 		"vscode": "^1.54.0"
 	},
 	"categories": [
-		"Other"
+		"Programming Languages"
 	],
 	"keywords": [
 		"python",
@@ -37,7 +38,8 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile && yarn run lint",
 		"lint": "eslint src --ext ts",
-		"package": "vsce package"
+		"package": "vsce package",
+		"publish": "vsce publish"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.54.0",

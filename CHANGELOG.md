@@ -5,6 +5,7 @@
 ### Fixed
 
 - Fixed cannot read pytest/python path from folder settings
+- Corrected categories in extension manifest
 
 ## [0.1.0] - 2021-03-29
 
