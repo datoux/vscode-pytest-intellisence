@@ -9,9 +9,9 @@ export const PYTHON: vscode.DocumentFilter = {
 	scheme: "file"
 };
 
-const generateRunOpts = () => {
-	let pytestPath: string = vscode.workspace.getConfiguration("python.testing").get("pytestPath") || "pytest";
-	const pythonPath: string = vscode.workspace.getConfiguration("python").get("pythonPath") || "python";
+const generateRunOpts = (document: vscode.TextDocument) => {
+	let pytestPath: string = vscode.workspace.getConfiguration("python.testing", document.uri).get("pytestPath") || "pytest";
+	const pythonPath: string = vscode.workspace.getConfiguration("python", document.uri).get("pythonPath") || "python";
 
 	// if python.testing.pytestPath is the default value (`pytest`), use python.pythonPath + `-m pytest`
 	if (pytestPath === "pytest") {
@@ -55,12 +55,6 @@ const fixtureSuggestions = (document: vscode.TextDocument, cmd: string, args: st
 };
 
 class PytestFixtureCompletionItemProvider implements vscode.CompletionItemProvider {
-	opts: Command;
-
-	constructor() {
-		this.opts = generateRunOpts();
-	}
-
 	provideCompletionItems(
 		document: vscode.TextDocument,
 		position: vscode.Position,
@@ -142,7 +136,7 @@ class PytestFixtureDefinitionProvider implements vscode.DefinitionProvider {
 export function activate(context: vscode.ExtensionContext) {
 	// cache fixtures when there's an active text editor when the plugin is activated
 	if (vscode.window.activeTextEditor) {
-		cacheFixtures(vscode.window.activeTextEditor.document, generateRunOpts());
+		cacheFixtures(vscode.window.activeTextEditor.document, generateRunOpts(vscode.window.activeTextEditor.document));
 	}
 
 	// cache fixtures when active window is changed
@@ -150,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.onDidChangeActiveTextEditor(editor => {
 			if (editor) {
 				// generate new run opts everytime text editor is active
-				cacheFixtures(editor.document, generateRunOpts());
+				cacheFixtures(editor.document, generateRunOpts(editor.document));
 			}
 		})
 	);
@@ -160,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.onDidSaveTextDocument(document => {
 			if (document) {
 				// generate new run opts everytime text editor is active
-				cacheFixtures(document, generateRunOpts());
+				cacheFixtures(document, generateRunOpts(document));
 			}
 		})
 	);
