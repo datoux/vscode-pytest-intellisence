@@ -2,7 +2,7 @@
   	"name": "vscode-pytest",
 	"displayName": "Pytest IntelliSense",
 	"description": "Autocompletion and Go To Definition support for Pytest fixtures",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"publisher": "reverbc",
     "author": "Reverb Chu",
 	"license": "MIT",

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2021-03-30
+
 ### Fixed
 
 - Fixed cannot read pytest/python path from folder settings
