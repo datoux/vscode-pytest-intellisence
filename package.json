@@ -38,8 +38,7 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile && yarn run lint",
 		"lint": "eslint src --ext ts",
-		"package": "vsce package",
-		"publish": "vsce publish"
+		"package": "vsce package"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.54.0",
