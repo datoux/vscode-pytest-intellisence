@@ -10,25 +10,27 @@ export const PYTHON: vscode.DocumentFilter = {
 };
 
 const generateRunOpts = (document: vscode.TextDocument) => {
-	let pytestPath: string = vscode.workspace.getConfiguration("python.testing", document.uri).get("pytestPath") || "pytest";
-	const pythonPath: string = vscode.workspace.getConfiguration("python", document.uri).get("pythonPath") || "python";
-
-	// if python.testing.pytestPath is the default value (`pytest`), use python.pythonPath + `-m pytest`
-	if (pytestPath === "pytest") {
-		pytestPath = pythonPath + " -m pytest";
+	const pytestCommandCfg: string | undefined = vscode.workspace.getConfiguration("pytest").get("command");
+  	const pythonPathCfg: string | undefined = vscode.workspace.getConfiguration("pytest").get("pythonPath") || "";
+	if (!pytestCommandCfg) {
+		vscode.window.showErrorMessage(
+			"Please set `pytest.command` in your Workspace Settings, then reload to enable IntelliSense for pytest."
+		);
+		return parseCommand("pytest", "");
 	}
 
-	return parseCommand(pytestPath);
+  	return parseCommand(pytestCommandCfg, pythonPathCfg);
 };
 
 // const fixtureSuggestions = (filepath: string, cmd: string, args: string[]) => {
-const fixtureSuggestions = (document: vscode.TextDocument, cmd: string, args: string[]) => {
+const fixtureSuggestions = (document: vscode.TextDocument, cmd: string, pythonPath: string, args: string[]) => {
 	return new Promise<Fixture[]>((resolve, reject) => {
 		const filepath = document.uri.fsPath;
 
-		args = [...args, "--verbose", "--fixtures", "--collect-only", filepath];
+		args = [...args, "--verbose", "--fixtures", "--collect-only", "--continue-on-collection-errors", filepath];
 		let p = cp.spawn(cmd, args, {
 			cwd: vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath,
+			env: { ...process.env, PYTHONPATH: pythonPath},
 			shell: true,
 		});
 
@@ -49,6 +51,7 @@ const fixtureSuggestions = (document: vscode.TextDocument, cmd: string, args: st
 			reject();
 		});
 		p.on("close", code => {
+			console.log(stderr);
 			resolve(parsePytestOutput(stdout));
 		});
 	});
@@ -86,7 +89,7 @@ const FIXTURE_CACHE: { [filePath: string]: Fixture[] } = {};
 
 const cacheFixtures = (document: vscode.TextDocument, opts: Command) => {
 	if (document.languageId === PYTHON.language) {
-		fixtureSuggestions(document, opts.cmd, opts.args).then(fixtures => {
+		fixtureSuggestions(document, opts.cmd, opts.pythonPath, opts.args).then(fixtures => {
 			console.log(`Found ${fixtures.length} fixtures for ${vscode.workspace.asRelativePath(document.fileName)}`);
 			FIXTURE_CACHE[document.uri.fsPath] = fixtures;
 		});
