@@ -66,7 +66,15 @@ class PytestFixtureCompletionItemProvider implements vscode.CompletionItemProvid
 	): vscode.CompletionItem[] {
 		let lineText = document.lineAt(position.line).text;
 		const testPath = document.uri.fsPath;
-		if (shouldSuggest(lineText, position.character)) {
+		let editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return [];
+        }
+        let firstLine = editor.document.lineAt(0);
+        let lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+        let textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+        let fullText = editor.document.getText(textRange);
+		if (shouldSuggest(lineText, position.character, fullText)) {
 			if (FIXTURE_CACHE[testPath]) {
 				const completions = FIXTURE_CACHE[testPath].map((fixture: Fixture) => {
 					let item = new vscode.CompletionItem(
